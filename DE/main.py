@@ -33,7 +33,7 @@ plotf(f, param, pts)
 v = []
 F = 0.5
 for p in pts["p"]:
-    r1, r2, r3 = compute_rand_ids(pts_num)
+    r1, r2, r3 = compute_rand_ids(pop_num)
     v_tmp = point(0.0, 0.0)
     v_tmp.x = pts["p"][r1].x + F*(pts["p"][r2].x - pts["p"][r3].x)    
     v_tmp.y = pts["p"][r1].y + F*(pts["p"][r2].y - pts["p"][r3].y)
