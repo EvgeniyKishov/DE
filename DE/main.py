@@ -73,12 +73,17 @@ def updpop(pts, func):
     return pts
 
 #parameters
-pop_num = 10
-min_val = -5
-max_val = 5
+pop_num = 20
+min_val = -4.5
+max_val = 4.5
 F = 0.5
 cr = 0.9
+it_num = 30
+
 param = plot_data()
+param.max = max_val
+param.min = min_val
+param.lines_num = 20
 
 #initial population
 pts = init(min_val, max_val, pop_num)
@@ -87,7 +92,7 @@ min_val, p_star = find_min(f, pts["p"])
 print(0,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(p_star.x,p_star.y))
 
 obj_hist = [min_val]
-iters = range(1, 20)
+iters = range(1, it_num)
 for it in iters:
     #mutation (generating children)
     pts = mut(pts, F)
@@ -105,8 +110,5 @@ for it in iters:
     obj_hist.append(min_val)
     print(it,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(p_star.x,p_star.y))
 
-import matplotlib.pyplot as plt
-plt.figure()
-plt.subplot()
-plt.plot([0] + list(iters), obj_hist, color='tab:blue', marker='o')
-plt.show()
+print("Number of goal func. evaluation = "+str(it_num*pop_num*2))
+plot_converg(iters, obj_hist)

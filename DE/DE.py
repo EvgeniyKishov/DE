@@ -13,12 +13,38 @@ class point:
 		self.x = x
 		self.y = y
 
-def f(X, Y):
+def ackley(X, Y):
 	import numpy as np
 	#Ackley function
 	Z = -20.0*np.exp(-0.2*np.sqrt(0.5*(X**2+Y**2))) - \
         np.exp(0.5*(np.cos(2*np.pi*X)+np.cos(2*np.pi*Y))) + np.exp(1) + 20.0
 	return Z
+
+def rastrigin(X, Y):
+	import numpy as np
+	A = 20.0
+	n = 2	
+	Z = A*n + (X**2 - A*np.cos(2*np.pi*X)) + (Y**2 - A*np.cos(2*np.pi*Y))
+	return Z
+
+def sphere(X, Y):
+	Z = X**2 + Y**2 
+	return Z
+
+def rosenbrock(X, Y):
+	Z = 100*(Y - X**2)**2 + (1 - X)**2
+	return Z
+
+def beale(X, Y):
+	Z = (1.5-X+X*Y)**2 + (2.25-X+X*(Y**2))**2 + (2.625-X+X*(Y**3))**2
+	return Z
+
+def f(X, Y):
+	#return ackley(X, Y)
+	#return rastrigin(X, Y)
+	#return sphere(X, Y)
+	#return rosenbrock(X, Y)
+	return beale(X, Y)
 
 def find_min(func, pts):
 	min_val = 1.0e30
@@ -42,7 +68,7 @@ def plotf(func, param, pts, it):
 	import numpy as np
 
 	fig, ax = plt.subplots()	
-	fig.set_size_inches(12.0, 8.0)
+	fig.set_size_inches(12.0, 9.0)
 	X = np.arange(param.min-0.5, param.max+0.5, param.step)
 	Y = np.arange(param.min-0.5, param.max+0.5, param.step)
 	X, Y = np.meshgrid(X, Y)
@@ -78,3 +104,13 @@ def plotf(func, param, pts, it):
 	#plt.show()
 	plt.savefig('iter = '+str(it)+'.png', dpi=100)
 	plt.close(fig)
+
+def plot_converg(iters, obj_hist):
+	import matplotlib.pyplot as plt
+	fig = plt.figure()
+	fig.suptitle("Convergence plot")
+	fig.set_size_inches(12.0, 9.0)
+	plt.xticks([0] + list(iters))
+	plt.plot([0] + list(iters), obj_hist, color='tab:blue', marker='o')
+	plt.savefig('convergence.png')
+	plt.show()
