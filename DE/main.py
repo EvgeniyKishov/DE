@@ -61,6 +61,17 @@ def cross(pts, cr):
     pts.update({"u": u})
     return pts
 
+def updpop(pts, func):
+    p_new = []
+    for p, u in zip(pts["p"], pts["u"]):
+        if (func(p.x, p.y) <= func(u.x, u.y)):
+            p_new.append(p)
+        else:
+            p_new.append(u)
+
+    pts.update({"p_new": p_new})
+    return pts
+
 #parameters
 pop_num = 10
 min_val = -5
@@ -71,14 +82,31 @@ param = plot_data()
 
 #initial population
 pts = init(min_val, max_val, pop_num)
-plotf(f, param, pts)
+plotf(f, param, pts, 0)
+min_val, p_star = find_min(f, pts["p"])
+print(0,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(p_star.x,p_star.y))
 
-#mutation (generating children)
-pts = mut(pts, F)
-plotf(f, param, pts)
+obj_hist = [min_val]
+iters = range(1, 20)
+for it in iters:
+    #mutation (generating children)
+    pts = mut(pts, F)
+    #crossover
+    pts = cross(pts, cr)
+    #update population
+    pts = updpop(pts, f)
+    #assign new points to old one
+    pts.update({"p": pts["p_new"]})
+    #plot result
+    plotf(f, param, pts, it)
+    #print iteration history
+    min_val, p_star = find_min(f, pts["p"])
+    #save objective history for plotting
+    obj_hist.append(min_val)
+    print(it,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(p_star.x,p_star.y))
 
-#crossover
-pts = cross(pts, cr)
-plotf(f, param, pts)
-
-#update population
+import matplotlib.pyplot as plt
+plt.figure()
+plt.subplot()
+plt.plot([0] + list(iters), obj_hist, color='tab:blue', marker='o')
+plt.show()

@@ -20,26 +20,29 @@ def f(X, Y):
         np.exp(0.5*(np.cos(2*np.pi*X)+np.cos(2*np.pi*Y))) + np.exp(1) + 20.0
 	return Z
 
-def plot_pts(min_val, p_star, func, pts, plt, ax, style):
+def find_min(func, pts):
+	min_val = 1.0e30
+	p_star = point(0, 0)
 	for p in pts:
 		f = func(p.x, p.y)
 		if f <= min_val:
 			min_val = f
 			p_star = p
-
-		plt.plot(p.x, p.y, style)
-		text = "{:.2f}".format(f)
-		ax.annotate(text, (p.x, p.y), fontsize=12)
-
 	return min_val, p_star
 
-def plotf(func, param, pts):
+def plot_pts(func, pts, plt, ax, style):
+	for p in pts:
+		plt.plot(p.x, p.y, style)
+		text = "{:.2f}".format(func(p.x, p.y))
+		ax.annotate(text, (p.x, p.y), fontsize=12)
+
+def plotf(func, param, pts, it):
 	import matplotlib.pyplot as plt
 	from matplotlib import cm
 	import numpy as np
 
-	fig, ax = plt.subplots()
-
+	fig, ax = plt.subplots()	
+	fig.set_size_inches(12.0, 8.0)
 	X = np.arange(param.min-0.5, param.max+0.5, param.step)
 	Y = np.arange(param.min-0.5, param.max+0.5, param.step)
 	X, Y = np.meshgrid(X, Y)
@@ -49,18 +52,20 @@ def plotf(func, param, pts):
 	surf = ax.contour(X, Y, Z, param.lines_num)
 	fig.colorbar(surf, shrink=0.5, aspect=10)
 
-	min_val = 1.0e30
-	p_star = point(0, 0)
-	if "p" in pts:
-		min_val, p_star = \
-			plot_pts(min_val, p_star, func, pts["p"], plt, ax, param.p_style)
-	if "v" in pts:
-		min_val, p_star = \
-			plot_pts(min_val, p_star, func, pts["v"], plt, ax, param.v_style)
-	if "u" in pts:
-		min_val, p_star = \
-			plot_pts(min_val, p_star, func, pts["u"], plt, ax, param.u_style)
-
+	if "p_new" in pts:
+		plot_pts(func, pts["p_new"], plt, ax, param.p_style)
+		min_val, p_star = find_min(f, pts["p_new"])
+	else:
+		if "p" in pts:
+			plot_pts(func, pts["p"], plt, ax, param.p_style)
+			min_val, p_star = find_min(f, pts["p"])
+		if "v" in pts:
+			plot_pts(func, pts["v"], plt, ax, param.v_style)
+			min_val, p_star = find_min(f, pts["v"])
+		if "u" in pts:
+			plot_pts(func, pts["u"], plt, ax, param.u_style)
+			min_val, p_star = find_min(f, pts["u"])
+	
 	text = "Min. goal func. value from current population = {:.3f}".format(min_val)
 	ax.annotate(text, xy=(0.0,1.1), xycoords='axes fraction', fontsize=12)
 	text = "Best candidate point = ({:.3f},{:.3f})".format(p_star.x, p_star.y)
@@ -68,5 +73,8 @@ def plotf(func, param, pts):
 	#arrow
 	ax.annotate('min', xy=(p_star.x, p_star.y), xytext=(p_star.x-1, p_star.y-1),
                  arrowprops=dict(facecolor='red', shrink=0.05))
-
-	plt.show()
+	
+	#plt.get_current_fig_manager().window.state('zoomed')
+	#plt.show()
+	plt.savefig('iter = '+str(it)+'.png', dpi=100)
+	plt.close(fig)
