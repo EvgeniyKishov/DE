@@ -4,9 +4,9 @@ class plot_data:
 		self.max = 5.0
 		self.step = 0.05
 		self.lines_num = 20
-		self.p_style = 'ko'
-		self.v_style = 'bv'
-		self.u_style = 'r*'
+		self.p_style = 'o'
+		self.v_style = 'v'
+		self.u_style = '*'
 
 class point:
 	def __init__(self, x, y):
@@ -57,6 +57,9 @@ def plotf(func, param, pts):
 	if "v" in pts:
 		min_val, p_star = \
 			plot_pts(min_val, p_star, func, pts["v"], plt, ax, param.v_style)
+	if "u" in pts:
+		min_val, p_star = \
+			plot_pts(min_val, p_star, func, pts["u"], plt, ax, param.u_style)
 
 	text = "Min. goal func. value from current population = {:.3f}".format(min_val)
 	ax.annotate(text, xy=(0.0,1.1), xycoords='axes fraction', fontsize=12)
