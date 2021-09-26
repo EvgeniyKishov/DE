@@ -7,8 +7,8 @@ import random as rd
 
 class de_param():
     def __init__(self):
-        self.xmin = -5.0
-        self.xmax = 5.0
+        self.xrange = (-5.0, 5.0)
+        self.yrange = (-5.0, 5.0)
         self.F = 0.5
         self.cr = 0.9
         self.it_num = 20
@@ -37,100 +37,91 @@ def compute_rand_ids(pts_num):
 
     return r1, r2, r3
 
-def init(min_val, max_val, pop_num):
-    p = []
+def init(xrange, yrange, pop_num):
+    x_pts = []
     for i in range(0, pop_num):
-        pt = point(rd.uniform(min_val, max_val), rd.uniform(min_val, max_val))
-        p.append(pt)
+        p = point(rd.uniform(xrange[0],xrange[1]), rd.uniform(yrange[0],yrange[1]))
+        x_pts.append(p)
+    return x_pts
 
-    pts = {"p": p}
-    return pts
-
-def mut(pts, de_par):
-    v = []
-    for p in pts["p"]:
-        r1, r2, r3 = compute_rand_ids(de_par.pop_num)
-        v_tmp = point(0.0, 0.0)
-        v_tmp.x = pts["p"][r1].x + de_par.F*(pts["p"][r2].x - pts["p"][r3].x)    
-        v_tmp.y = pts["p"][r1].y + de_par.F*(pts["p"][r2].y - pts["p"][r3].y)
-        #imposing box constraints
-        v_tmp.x = max(de_par.xmin, min(v_tmp.x, de_par.xmax))
-        v_tmp.y = max(de_par.xmin, min(v_tmp.y, de_par.xmax))
-
-        v.append(v_tmp)
-
-    pts.update({"v": v})
-    return pts
-
-def cross(pts, de_par):
-    u = []
+def mut(x_pts, de_par):
+    v_pts = []
     for i in range(0, de_par.pop_num):
-        u_tmp = point(pts["p"][i].x, pts["p"][i].y)
+        r1, r2, r3 = compute_rand_ids(de_par.pop_num)
+        v = point(0.0, 0.0)
+        v.x = x_pts[r1].x + de_par.F*(x_pts[r2].x - x_pts[r3].x)    
+        v.y = x_pts[r1].y + de_par.F*(x_pts[r2].y - x_pts[r3].y)
+        #imposing box constraints
+        v.x = max(de_par.xrange[0], min(v.x, de_par.xrange[1]))
+        v.y = max(de_par.yrange[0], min(v.y, de_par.yrange[1]))
+        v_pts.append(v)
+    return v_pts
+
+def cross(x_pts, v_pts, de_par):
+    u_pts = []
+    for i in range(0, de_par.pop_num):
+        u = point(x_pts[i].x, x_pts[i].y)
         n = rd.randrange(0, 2)
         if (n == 0):
             if (rd.uniform(0.0, 1.0) <= de_par.cr):
-                u_tmp.x = pts["v"][i].x
+                u.x = v_pts[i].x
             if (rd.uniform(0.0, 1.0) <= de_par.cr):
-                u_tmp.y = pts["v"][i].y
+                u.y = v_pts[i].y
         if (n == 1):
             if (rd.uniform(0.0, 1.0) <= de_par.cr):
-                u_tmp.y = pts["v"][i].y    
-        u.append(u_tmp)
+                u.y = v_pts[i].y                  
+        u_pts.append(u)
+    return u_pts
 
-    pts.update({"u": u})
-    return pts
-
-def updpop(pts, func):
-    p_new = []
-    for p, u in zip(pts["p"], pts["u"]):
+def updpop(x_pts, u_pts, func):
+    x_pts_new = []
+    for p, u in zip(x_pts, u_pts):
         if (func(p.x, p.y) <= func(u.x, u.y)):
-            p_new.append(p)
+            x_pts_new.append(p)
         else:
-            p_new.append(u)
-
-    pts.update({"p_new": p_new})
-    return pts
+            x_pts_new.append(u)
+    return x_pts_new
 
 def de_opt(func, de_par, plot_par):
     #initial population
-    pts = init(de_par.xmin, de_par.xmax, de_par.pop_num)
-    min_val, p_star = find_min(func, pts["p"])
+    x_pts = init(de_par.xrange, de_par.yrange, de_par.pop_num)
+    min_val, x_star = find_min(func, x_pts)
     if plot_par.plot_pop:
         opt_par = opt_data()
         opt_par.it = 0
         opt_par.min_val = min_val
-        opt_par.p_star = p_star
-        plotf(func, plot_par, pts, opt_par)    
-    print(0,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(p_star.x,p_star.y))
+        opt_par.x_star = x_star
+        plotf(func, plot_par, x_pts, opt_par)    
+    print(0,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(x_star.x,x_star.y))
 
     #optimization loop
     obj_hist = [min_val]
     iters = range(1, de_par.it_num)
     for it in iters:
         #mutation (generating children)
-        pts = mut(pts, de_par)
+        v_pts = mut(x_pts, de_par)
         #crossover
-        pts = cross(pts, de_par)
+        u_pts = cross(x_pts, v_pts, de_par)
         #update population
-        pts = updpop(pts, func)
+        x_pts_new = updpop(x_pts, u_pts, func)
         #assign new points to old one
-        pts.update({"p": pts["p_new"]})
+        x_pts = x_pts_new
         #compute current result
-        min_val, p_star = find_min(func, pts["p"])
+        min_val, x_star = find_min(func, x_pts)
         #plot result
         if plot_par.plot_pop:
             opt_par.it = it
             opt_par.min_val = min_val
-            opt_par.p_star = p_star
-            plotf(func, plot_par, pts, opt_par)  
+            opt_par.x_star = x_star
+            plotf(func, plot_par, x_pts, opt_par)  
         #print iteration history
 
         #save objective history for plotting
         obj_hist.append(min_val)
-        print(it,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(p_star.x,p_star.y))
+        print(it,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(x_star.x,x_star.y))
 
     print("Number of goal func. evaluation = "+str(de_par.it_num*de_par.pop_num*2))
     if plot_par.plot_conv:
         plot_converg(iters, obj_hist)
 
-    return min_val, p_star
+    return min_val, x_star
