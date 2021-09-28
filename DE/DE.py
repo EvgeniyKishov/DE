@@ -78,9 +78,12 @@ def updpop(x_pts, u_pts, func):
             x_pts_new.append(u)
     return x_pts_new
 
-def de_opt(func, de_par, plot_par):
+def de_opt(func, de_par, plot_par, x0):
     #initial population
-    x_pts = init(de_par.xrange, de_par.yrange, de_par.pop_num)
+    if x0 == None:
+        x_pts = init(de_par.xrange, de_par.yrange, de_par.pop_num)
+    else:
+        x_pts = x0
     min_val, x_star = find_min(func, x_pts)
     if plot_par.plot_pop:
         opt_par = opt_data()

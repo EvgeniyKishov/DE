@@ -56,10 +56,10 @@ def plotf(func, plot_par, x_pts, opt_par):
 	
 	#plt.get_current_fig_manager().window.state('zoomed')
 	#plt.show()
-	newpath = plot_par.alg + "_plots"
-	if not os.path.exists(newpath):
-		os.makedirs(newpath)
-	plt.savefig(plot_par.alg+'\\'+'iter = '+str(opt_par.it)+'.png', dpi=100)
+	folder = plot_par.alg + "_plots"
+	if not os.path.exists(folder):
+		os.makedirs(folder)
+	plt.savefig(folder+'\\'+'iter = '+str(opt_par.it)+'.png', dpi=100)
 	plt.close(fig)
 
 def plot_converg(obj_hist_de, obj_hist_brmc, minv):
