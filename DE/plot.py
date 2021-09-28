@@ -10,6 +10,7 @@ class plot_data:
 		self.x_style = 'o'
 		self.v_style = 'v'
 		self.u_style = '*'
+		self.alg = 'DE'
 		self.plot_pop = True
 		self.plot_conv = True
 
@@ -27,8 +28,8 @@ def plot_pts(func, x_pts, plt, ax, style):
 
 def plotf(func, plot_par, x_pts, opt_par):
 	import matplotlib.pyplot as plt
-	from matplotlib import cm
 	import numpy as np
+	import os
 
 	fig, ax = plt.subplots()	
 	fig.set_size_inches(12.0, 9.0)
@@ -38,7 +39,7 @@ def plotf(func, plot_par, x_pts, opt_par):
 
 	Z = func(X, Y)
 
-	surf = ax.contour(X, Y, Z, plot_par.lines_num)
+	surf = ax.contour(X, Y, Z, levels = plot_par.lines_num)
 	fig.colorbar(surf, shrink=0.5, aspect=10)
 
 	plot_pts(func, x_pts, plt, ax, plot_par.x_style)
@@ -55,15 +56,44 @@ def plotf(func, plot_par, x_pts, opt_par):
 	
 	#plt.get_current_fig_manager().window.state('zoomed')
 	#plt.show()
-	plt.savefig('iter = '+str(opt_par.it)+'.png', dpi=100)
+	newpath = plot_par.alg + "_plots"
+	if not os.path.exists(newpath):
+		os.makedirs(newpath)
+	plt.savefig(plot_par.alg+'\\'+'iter = '+str(opt_par.it)+'.png', dpi=100)
 	plt.close(fig)
 
-def plot_converg(iters, obj_hist):
+def plot_converg(obj_hist_de, obj_hist_brmc, minv):
 	import matplotlib.pyplot as plt
-	fig = plt.figure()
+	fig, ax = plt.subplots()
 	fig.suptitle("Convergence plot")
 	fig.set_size_inches(12.0, 9.0)
-	plt.xticks([0] + list(iters))
-	plt.plot([0] + list(iters), obj_hist, color='tab:blue', marker='o')
+	ax.set_xlabel('Iterations')
+	ax.set_ylabel('Goal function values')
+
+	iters_de = []
+	obj_de = []	
+	for o in obj_hist_de:
+		iters_de.append(o[0])
+		obj_de.append(o[1])
+	iters_brmc = []
+	obj_brmc = []
+	for o in obj_hist_brmc:
+		iters_brmc.append(o[0])
+		obj_brmc.append(o[1])
+	if len(iters_de) >= len(iters_brmc):
+		plt.xticks(iters_de)
+		iters_exact = iters_de
+	else:
+		plt.xticks(iters_brmc)
+		iters_exact = iters_brmc
+	
+	exact = []
+	for it in iters_exact:
+		exact.append(minv)
+
+	plt.plot(iters_de, obj_de, 'bo-', label='DE')
+	plt.plot(iters_brmc, obj_brmc, 'r*-', label='BRMC')
+	plt.plot(iters_exact, exact, 'g--', label='Exact')
+	plt.legend()
 	plt.savefig('convergence.png')
 	plt.show()

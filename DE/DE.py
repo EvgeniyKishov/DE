@@ -1,10 +1,6 @@
 from plot import *
 import random as rd
 
-#def print_pts(pts):
-#    for p in pts:
-#        print("{:.2f}, {:.2f}".format(p.x, p.y))
-
 class de_param():
     def __init__(self):
         self.xrange = (-5.0, 5.0)
@@ -14,15 +10,15 @@ class de_param():
         self.it_num = 20
         self.pop_num = 10
 
-def find_min(func, pts):
+def find_min(func, x_pts):
 	min_val = 1.0e30
-	p_star = point(0, 0)
-	for p in pts:
+	x_star = point(0, 0)
+	for p in x_pts:
 		f = func(p.x, p.y)
 		if f <= min_val:
 			min_val = f
-			p_star = p
-	return min_val, p_star
+			x_star = p
+	return min_val, x_star
 
 def compute_rand_ids(pts_num):
     import random as rd
@@ -95,7 +91,7 @@ def de_opt(func, de_par, plot_par):
     print(0,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(x_star.x,x_star.y))
 
     #optimization loop
-    obj_hist = [min_val]
+    obj_hist = [(0, min_val)]
     iters = range(1, de_par.it_num)
     for it in iters:
         #mutation (generating children)
@@ -117,11 +113,11 @@ def de_opt(func, de_par, plot_par):
         #print iteration history
 
         #save objective history for plotting
-        obj_hist.append(min_val)
+        obj_hist.append((it, min_val))
         print(it,"{:.3f}".format(min_val),"({:.3f},{:.3f})".format(x_star.x,x_star.y))
 
     print("Number of goal func. evaluation = "+str(de_par.it_num*de_par.pop_num*2))
-    if plot_par.plot_conv:
-        plot_converg(iters, obj_hist)
+    #if plot_par.plot_conv:
+    #    plot_converg(iters, obj_hist)
 
-    return min_val, x_star
+    return min_val, x_star, obj_hist
