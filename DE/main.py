@@ -9,7 +9,9 @@ shutil.rmtree("BRMC_plots", ignore_errors=True)
 #test function:
 #test_func = ackley()
 #test_func = rastrigin()
-test_func = beale()
+#test_func = beale()
+#test_func = sphere()
+test_func = rosenbrock()
 
 pop_num = 20
 
@@ -25,10 +27,10 @@ de_par.it_num = 20
 brmc_par = brmc_param()
 brmc_par.xrange = test_func.xrange
 brmc_par.yrange = test_func.yrange
-brmc_par.best = 0.2
+brmc_par.best = 0.1
 brmc_par.mut = 0.5
 brmc_par.rand = 0.1
-brmc_par.cross = 0.2
+brmc_par.cross = 0.3
 brmc_par.paren = 0.6
 brmc_par.pop_num = pop_num
 brmc_par.d = 0.3
