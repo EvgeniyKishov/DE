@@ -70,6 +70,14 @@ def cross(goalv, brmc_par, ncross):
         cross_pts.append(cross_pts_raw[i][0])
     return cross_pts
 
+def apply_box_constr(x_pts, param):
+    x_pts_new = []
+    for p in x_pts:
+        p.x = min(param.xrange[1],max(param.xrange[0],p.x))
+        p.y = min(param.yrange[1],max(param.yrange[0],p.y))
+        x_pts_new.append(p)
+    return x_pts_new
+
 def brmc_opt(func, brmc_par, plot_par, x0):
     check = brmc_par.best + brmc_par.mut + \
             brmc_par.rand + brmc_par.cross
@@ -109,7 +117,8 @@ def brmc_opt(func, brmc_par, plot_par, x0):
             rnd_pts = init(brmc_par.xrange, brmc_par.yrange, nrand+delta)  
         else:
             rnd_pts = init(brmc_par.xrange, brmc_par.yrange, nrand)  
-        x_pts = best_pts + mut_pts + rnd_pts + cross_pts
+        x_pts_raw = best_pts + mut_pts + rnd_pts + cross_pts
+        x_pts = apply_box_constr(x_pts_raw, brmc_par)
 
         goalv = goalf_eval(func, x_pts)
         best_pts = best(goalv, nbest)

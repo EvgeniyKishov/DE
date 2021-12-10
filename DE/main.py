@@ -1,3 +1,5 @@
+import sys
+
 from DE import *
 from BRMC import *
 from testf import *
@@ -6,14 +8,17 @@ import shutil
 shutil.rmtree("DE_plots", ignore_errors=True)
 shutil.rmtree("BRMC_plots", ignore_errors=True)
 
+#redirect console output to file
+sys.stdout = open("output.txt", "w")
+
 #test function:
-#test_func = ackley()
+test_func = ackley()
 #test_func = rastrigin()
 #test_func = beale()
 #test_func = sphere()
-test_func = rosenbrock()
+#test_func = rosenbrock()
 
-pop_num = 20
+pop_num = 25
 
 #parameters
 de_par = de_param()
@@ -41,7 +46,7 @@ plot_par.xrange = test_func.xrange
 plot_par.yrange = test_func.yrange
 plot_par.lines_num = 20
 plot_par.step = 0.05
-plot_par.plot_pop = False
+plot_par.plot_pop = True
 plot_par.plot_conv = True
 
 x0 = init(test_func.xrange, test_func.yrange, pop_num)
@@ -61,4 +66,6 @@ print("Min obj. value = {:.3f}, x* = {:.3f}, y* = {:.3f}".
                      format(min_val, x_star.x, x_star.y))
 print("Exact solution = {:.3f}, x* = {:.3f}, y* = {:.3f}".
                      format(test_func.minv, test_func.x_star.x, test_func.x_star.y))
+sys.stdout.close()
 plot_converg(obj_hist_de, obj_hist_brmc, test_func.minv)
+
